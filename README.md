@@ -5,6 +5,7 @@ Agenda escolar web para centralizar atividades, provas, eventos e avisos de turm
 ## Tecnologias
 
 - **Web:** React, TypeScript, Vite e Tailwind CSS.
+- **Tipografia:** Poppins como padrão e OpenDyslexic como opção de acessibilidade, carregadas localmente.
 - **API:** NestJS, TypeORM e PostgreSQL.
 - **Notificações:** base preparada para Web Push; requer consentimento no navegador e HTTPS (localhost funciona para desenvolvimento).
 
@@ -39,9 +40,12 @@ A API fica em `http://localhost:3000/api`; o frontend, em `http://localhost:5173
 
 ## Estrutura
 
-- `frontend/src/`: interface web responsiva e estilos do Noctua.
+- `frontend/src/pages/`: páginas da landing, agenda, checklist, avisos, perfil e configurações.
+- `frontend/src/components/`: componentes reutilizáveis de navegação, atividades, formulários e ícones.
+- `frontend/src/context/` e `frontend/src/data/`: estado demonstrativo e conteúdo local do frontend.
+- `frontend/src/`: rotas, estilos e inicialização da aplicação.
 - `backend/src/`: API NestJS; atualmente inclui configuração do PostgreSQL e `GET /api/health`.
 - `backend/database/migrations/`: esquema inicial de turmas, disciplinas, atividades, checklist e notificações.
 - `docs/PROJETO_NOCTUA.md`: produto, perfis, jornada, acessibilidade e contratos HTTP propostos.
 
-O dashboard web atual é um protótipo visual com dados demonstrativos. Login, autorização por turma, publicação/edição de atividades, anexos e notificações ainda precisam ser implementados. As migrations devem ser usadas somente como sequência inicial em um banco novo; consulte o aviso de transição na documentação se você já aplicou o esquema anterior de cursos e aulas.
+A interface web inclui landing page, rotas de acesso demonstrativas, agenda, checklist, avisos, perfil com progresso acadêmico e configurações em uma navegação compartilhada. As ações de conta são apenas visuais até a integração com a API. Todos os dados permanecem em memória no navegador; autenticação, autorização, publicação, upload de arquivos, persistência e notificações ainda precisam ser conectados à API. Os formulários e serviços visuais estão separados em páginas, componentes, contexto e dados para apoiar essa integração. As migrations devem ser usadas somente como sequência inicial em um banco novo; consulte o aviso de transição na documentação se você já aplicou o esquema anterior de cursos e aulas.

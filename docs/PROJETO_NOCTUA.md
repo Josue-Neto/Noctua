@@ -9,6 +9,8 @@ O produto atende dois perfis:
 - **Estudante:** consulta prazos por data e disciplina, acessa orientações e anexos, recebe lembretes e mantém um checklist pessoal.
 - **Professor/coordenação:** publica e atualiza atividades, provas, eventos e avisos para uma turma, anexa materiais e mantém a comunicação oficial em um só lugar.
 
+A navegação da aplicação web é compartilhada: não há uma experiência ou conjunto de páginas separado por perfil. Permissões para publicar ou administrar atividades continuam sendo responsabilidade da API, de acordo com o papel e o vínculo institucional do usuário.
+
 Este projeto será uma aplicação **web responsiva**, feita com React, TypeScript, Vite e Tailwind CSS. A experiência deve funcionar em telas pequenas e grandes; não é um aplicativo React Native.
 
 ## Escopo principal
@@ -46,7 +48,7 @@ Este projeto será uma aplicação **web responsiva**, feita com React, TypeScri
 - **Professor/coordenação:** visão geral da turma → atividades → criar/editar atividade → selecionar turma e disciplina → anexar material → publicar.
 - Em telas largas, usar navegação lateral e conteúdo em colunas. Em telas estreitas, adaptar para navegação compacta e conteúdo em coluna única, sem esconder informações essenciais nem exigir rolagem horizontal.
 
-Os rascunhos visuais atuais usam dados de demonstração. Roteamento, formulários de publicação, autenticação, acesso a arquivos, sincronização persistente e envio de push ainda precisam ser implementados.
+A interface web atual reúne landing page, acesso demonstrativo, visão geral, agenda, checklist, avisos, perfil editável e configurações. A navegação é compartilhada entre os perfis; ações administrativas demonstrativas ficam disponíveis na mesma experiência e devem ser autorizadas pela API na integração. Formulários e dados permanecem exclusivamente no navegador: as telas de entrada não autenticam usuários, alterações não são persistidas no servidor e anexos não são enviados. A integração com autenticação, autorização por turma, publicação, armazenamento de arquivos, sincronização e notificações permanece a cargo da API.
 
 ## Identidade visual e acessibilidade
 
@@ -57,20 +59,32 @@ Paleta de referência do material do projeto:
 | Roxo Noctua / ações principais | `#46479C` |
 | Roxo suave / estados selecionados | `#8486DE` |
 | Fundo lilás | `#CDCEFF` |
-| Superfícies creme | `#F8F1E6` |
-| Destaque amarelo | `#FFD38F` |
-| Texto sobre tons quentes | `#715B38` |
+| Superfície clara | `#FEFEFF` |
+| Fundo creme | `#F8F1E6` |
 | Grafite/lilás para texto | `#4B4C7E` |
-| Marrom neutro | `#987B4C` |
 
-Tipografia de referência: Poppins ou Inter; considerar OpenDyslexic como opção de acessibilidade em uma etapa posterior. O protótipo atual usa a pilha de fontes do sistema e oferece um controle funcional de alto contraste.
+Paleta do modo escuro:
+
+| Uso | Cor |
+| --- | --- |
+| Fundo azul noturno | `#0B1024` |
+| Superfície | `#171A32` |
+| Estado selecionado | `#242844` |
+| Roxo principal | `#5D5BB8` |
+| Roxo claro | `#9D9CF3` |
+| Texto branco | `#FFFFFF` |
+| Texto secundário | `#C2C3DD` |
+
+Tipografia: Poppins, carregada localmente como fonte principal, e OpenDyslexic, disponível como opção de acessibilidade nas configurações.
+
+O perfil apresenta foto, dados pessoais e progresso calculado a partir das atividades publicadas na interface. Edição e ações de conta ficam separadas: sair retorna à tela de acesso; exclusão definitiva aguarda integração com o serviço de contas. O nome da instituição no perfil inicial é apenas dado de exemplo, não uma exigência de cadastro.
 
 Diretrizes para implementação:
 
 - Trabalhar com WCAG 2.1 AA como meta: contraste mínimo de 4,5:1 para texto normal e 3:1 para texto grande e componentes relevantes. Validar cada par real de cores antes de declarar conformidade.
 - Manter texto legível a partir de 14px, formulários com rótulos explícitos, estrutura semântica, estados de foco visíveis e operação por teclado.
 - Preservar alvos interativos de pelo menos 44×44px nos controles principais e não comunicar urgência apenas pela cor.
-- Oferecer tema de alto contraste inspirado em azul noturno `#0B1F44`, amarelo `#FFD600`, creme claro `#FFFEEE`, grafite `#0A1A2F` e branco `#FFFFFF`. Validar o contraste das combinações antes de usá-las.
+- Acompanhar a preferência de tema do sistema por padrão, permitindo alternância manual entre claro e escuro na landing page e nas configurações. Usar tons de azul e violeta no modo escuro; alto contraste deve manter foco visível.
 - Respeitar a preferência do sistema por movimento reduzido e evitar navegação excessivamente profunda.
 
 ## Contratos HTTP propostos
