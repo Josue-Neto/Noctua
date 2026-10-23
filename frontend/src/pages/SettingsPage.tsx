@@ -36,7 +36,7 @@ export function SettingsPage() {
         <span className="eyebrow">SUA CONTA</span>
         <h2>Perfil e dados pessoais</h2>
         <p>Atualize as informações que aparecem na sua agenda.</p>
-        <Link className="app-link-button" to="/perfil">Personalizar meu perfil <span aria-hidden="true">→</span></Link>
+        <Link className="app-link-button" to="/perfil" state={{ editProfile: true }}>Personalizar meu perfil <span aria-hidden="true">→</span></Link>
       </div>
       <div className="app-panel account-panel account-actions">
         <span className="eyebrow">ACESSO E PRIVACIDADE</span>

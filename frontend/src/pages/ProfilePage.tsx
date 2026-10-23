@@ -1,4 +1,5 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
+import { useLocation } from 'react-router-dom'
 import { Icon } from '../components/Icon'
 import { usePlatform } from '../context/PlatformContext'
 import { formatDate, dateOffset } from '../data/initialActivities'
@@ -6,6 +7,7 @@ import type { UserProfile } from '../types/platform'
 
 export function ProfilePage() {
   const { profile, setProfile, activities } = usePlatform()
+  const location = useLocation()
   const [draft, setDraft] = useState(profile)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
@@ -19,6 +21,13 @@ export function ProfilePage() {
   useEffect(() => {
     setDraft(profile)
   }, [profile])
+
+  useEffect(() => {
+    if (location.state?.editProfile) {
+      setDraft(profile)
+      setEditing(true)
+    }
+  }, [location.key, location.state])
 
   function update(key: keyof UserProfile, value: string) {
     setDraft((current) => ({ ...current, [key]: value }))

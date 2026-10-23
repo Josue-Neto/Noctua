@@ -145,9 +145,9 @@ export function LandingPage({ onAccess }: { onAccess: () => void }) {
         <section className="benefit-band" aria-label="O que o Noctua oferece">
           <div><span className="benefit-icon"><Icon name="calendar" /></span><span><strong>Agenda em um só lugar</strong><small>Atividades, provas e eventos</small></span></div>
           <span className="benefit-divider" aria-hidden="true" />
-          <div><span className="benefit-icon benefit-icon-warm"><Icon name="bell" /></span><span><strong>Informação que acompanha você</strong><small>Avisos claros, sem ruído</small></span></div>
+          <div><span className="benefit-icon"><Icon name="bell" /></span><span><strong>Informação que acompanha você</strong><small>Avisos claros, sem ruído</small></span></div>
           <span className="benefit-divider" aria-hidden="true" />
-          <div><span className="benefit-icon benefit-icon-lilac"><Icon name="check" /></span><span><strong>Seu progresso, do seu jeito</strong><small>Uma rotina mais leve</small></span></div>
+          <div><span className="benefit-icon"><Icon name="check" /></span><span><strong>Seu progresso, do seu jeito</strong><small>Uma rotina mais leve</small></span></div>
         </section>
 
         <section className="features-section section-wrap" id="recursos">
@@ -159,11 +159,10 @@ export function LandingPage({ onAccess }: { onAccess: () => void }) {
           <div className="feature-grid">
             {features.map((feature) => (
               <article className="feature-card" key={feature.number}>
-                <div className={`feature-icon feature-icon-${feature.icon}`}><Icon name={feature.icon} /></div>
+                <div className="feature-icon"><Icon name={feature.icon} /></div>
                 <span className="feature-number">{feature.number}</span>
                 <h3>{feature.title}</h3>
                 <p>{feature.description}</p>
-                <span className="feature-arrow" aria-hidden="true"><Icon name="arrow" /></span>
               </article>
             ))}
           </div>

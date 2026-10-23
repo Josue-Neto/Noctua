@@ -36,7 +36,7 @@ Agenda escolar web para centralizar atividades, provas, eventos e avisos de turm
    npm run dev
    ```
 
-A API fica em `http://localhost:3000/api`; o frontend, em `http://localhost:5173`. Para apontar o frontend a outra URL, defina `VITE_API_URL`.
+A API fica em `http://localhost:3000/api`; o frontend, em `http://localhost:5173`. Durante o desenvolvimento, o Vite encaminha `/api` para a API local. Em produção, o frontend usa `/api` no mesmo domínio por padrão; se a API estiver em outro domínio, defina `VITE_API_URL` com a URL pública completa da API e configure `FRONTEND_URL` no backend com a origem do frontend.
 
 ## Estrutura
 

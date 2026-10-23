@@ -288,8 +288,7 @@ textarea:focus-visible {
 .header-link svg,
 .button svg,
 .text-link svg,
-.planner-footer svg,
-.feature-arrow svg {
+.planner-footer svg {
   width: 16px;
   height: 16px;
 }
@@ -361,7 +360,6 @@ textarea:focus-visible {
   border-radius: 20px 8px 16px 8px;
   background: var(--warm);
   content: "";
-  opacity: 0.76;
   transform: rotate(-1deg);
 }
 
@@ -830,23 +828,13 @@ textarea:focus-visible {
   flex: 0 0 auto;
   place-items: center;
   border-radius: 9px;
-  background: var(--lavender);
-  color: var(--primary);
+  background: var(--warm);
+  color: var(--warm-ink);
 }
 
 .benefit-icon svg {
   width: 20px;
   height: 20px;
-}
-
-.benefit-icon-warm {
-  background: var(--warm);
-  color: var(--warm-ink);
-}
-
-.benefit-icon-lilac {
-  background: var(--lavender);
-  color: var(--primary);
 }
 
 .benefit-band > div > span:last-child {
@@ -929,23 +917,13 @@ textarea:focus-visible {
   height: 44px;
   place-items: center;
   border-radius: 9px;
-  background: var(--lavender);
-  color: var(--primary);
+  background: var(--warm);
+  color: var(--warm-ink);
 }
 
 .feature-icon svg {
   width: 21px;
   height: 21px;
-}
-
-.feature-icon-bell {
-  background: var(--warm);
-  color: var(--warm-ink);
-}
-
-.feature-icon-check {
-  background: var(--warm);
-  color: var(--warm-ink);
 }
 
 .feature-number {
@@ -971,24 +949,6 @@ textarea:focus-visible {
   color: var(--ink-muted);
   font-size: 12px;
   line-height: 1.75;
-}
-
-.feature-arrow {
-  position: absolute;
-  right: 21px;
-  bottom: 20px;
-  display: grid;
-  width: 30px;
-  height: 30px;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--lavender);
-  color: var(--primary);
-}
-
-.feature-arrow svg {
-  width: 14px;
-  height: 14px;
 }
 
 .how-section {
