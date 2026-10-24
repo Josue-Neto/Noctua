@@ -4,7 +4,7 @@ Agenda escolar web para centralizar atividades, provas, eventos e avisos de turm
 
 ## Tecnologias
 
-- **Web:** React, TypeScript, Vite e Tailwind CSS.
+- **Web:** React, TypeScript, Vite e CSS.
 - **Tipografia:** Poppins como padrão e OpenDyslexic como opção de acessibilidade, carregadas localmente.
 - **Acessibilidade em Libras:** widget oficial do VLibras disponível na interface.
 - **API:** NestJS, TypeORM e PostgreSQL.
