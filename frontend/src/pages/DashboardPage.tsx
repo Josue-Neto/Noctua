@@ -6,20 +6,20 @@ import { dateOffset, formatDate } from '../data/initialActivities'
 import { useActivityEditor } from '../hooks/useActivityEditor'
 
 export function DashboardPage() {
-  const { activities, profile, toggleActivity } = usePlatform()
+  const { activities, profile, toggleActivity, authUser, schoolTimezone } = usePlatform()
   const editor = useActivityEditor()
   const published = activities.filter((activity) => activity.status === 'published')
   const pending = published.filter((activity) => !activity.done).length
   const completed = published.filter((activity) => activity.done).length
-  const nextDue = [...published].filter((activity) => activity.dueDate >= dateOffset(0)).sort((a, b) => a.dueDate.localeCompare(b.dueDate))[0]
-  const today = formatDate(dateOffset(0), { weekday: 'long', day: 'numeric', month: 'long' })
+  const nextDue = [...published].filter((activity) => activity.dueDate >= dateOffset(0,schoolTimezone)).sort((a, b) => a.dueDate.localeCompare(b.dueDate))[0]
+  const today = formatDate(dateOffset(0,schoolTimezone), { weekday: 'long', day: 'numeric', month: 'long' })
 
   return (
     <>
       {editor.message && <div className="platform-success" role="status"><span>✓</span>{editor.message}<button type="button" onClick={editor.clearMessage} aria-label="Fechar aviso">×</button></div>}
       <section className="dashboard-welcome">
         <div><span className="eyebrow">{today.toLocaleUpperCase('pt-BR')}</span><h2>Olá, {profile.name.split(' ')[0]}.</h2><p>Acompanhe os próximos passos da sua rotina escolar.</p></div>
-        <button className="app-button" type="button" onClick={() => editor.openNew()}><Icon name="plus" /> Adicionar atividade</button>
+        {authUser?.role !== 'student' && <button className="app-button" type="button" onClick={() => editor.openNew()}><Icon name="plus" /> Adicionar atividade</button>}
       </section>
       <div className="overview-cards">
         <article><span className="overview-icon"><Icon name="tasks" /></span><span><small>Pendentes</small><strong>{pending}</strong><em>na agenda da turma</em></span></article>
@@ -29,7 +29,7 @@ export function DashboardPage() {
       <div className="dashboard-grid">
         <section className="app-panel">
           <div className="app-panel-heading"><div><span className="eyebrow">ACOMPANHAMENTO</span><h2>Próximas atividades</h2></div><Link className="app-link-button" to="/agenda">Ver agenda <Icon name="arrow" /></Link></div>
-          <ActivityList activities={published.filter((activity) => activity.status === 'published').slice(0, 4)} onToggle={toggleActivity} onEdit={editor.openEdit} onCancel={editor.cancel} emptyMessage="Nenhuma atividade publicada ainda." />
+          <ActivityList activities={published.filter((activity) => activity.status === 'published').slice(0, 4)} onToggle={toggleActivity} onEdit={editor.openEdit} onCancel={editor.cancel} emptyMessage="Nenhuma atividade publicada ainda." canManage={authUser?.role !== 'student'} canToggle={authUser?.role === 'student'} />
         </section>
         <aside className="app-panel week-panel-app">
           <div className="app-panel-heading"><div><span className="eyebrow">LEMBRETE</span><h2>Um passo por vez</h2></div><span className="panel-sparkle">✦</span></div>
@@ -38,7 +38,7 @@ export function DashboardPage() {
           <Link className="app-link-button" to="/configuracoes">Preferências de avisos <Icon name="arrow" /></Link>
         </aside>
       </div>
-      {editor.form}
+      {authUser?.role !== 'student' && editor.form}
     </>
   )
 }

@@ -5,7 +5,7 @@ import { activityKinds } from '../data/initialActivities'
 import { useActivityEditor } from '../hooks/useActivityEditor'
 
 export function TasksPage() {
-  const { activities, toggleActivity } = usePlatform()
+  const { activities, toggleActivity, authUser } = usePlatform()
   const [filter, setFilter] = useState('Todas')
   const editor = useActivityEditor()
   const visible = activities.filter((activity) => activity.status === 'published' && (filter === 'Todas' || activity.kind === filter))
@@ -18,9 +18,9 @@ export function TasksPage() {
       <section className="app-panel tasks-panel">
         <div className="app-panel-heading"><div><span className="eyebrow">CHECKLIST PESSOAL</span><h2>Seu progresso, no seu ritmo</h2></div><select className="activity-filter" aria-label="Filtrar por tipo" value={filter} onChange={(event) => setFilter(event.target.value)}><option>Todas</option>{activityKinds.map((kind) => <option key={kind}>{kind}</option>)}</select></div>
         <div className="task-progress"><div><strong>{completed} de {visible.length}</strong><span>atividades concluídas</span></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div>
-        <ActivityList activities={visible} onToggle={toggleActivity} onEdit={editor.openEdit} onCancel={editor.cancel} emptyMessage="Nenhuma tarefa corresponde a esse filtro." />
+        <ActivityList activities={visible} onToggle={toggleActivity} onEdit={editor.openEdit} onCancel={editor.cancel} emptyMessage="Nenhuma tarefa corresponde a esse filtro." canManage={authUser?.role !== 'student'} canToggle={authUser?.role === 'student'} />
       </section>
-      {editor.form}
+      {authUser?.role !== 'student' && editor.form}
     </>
   )
 }

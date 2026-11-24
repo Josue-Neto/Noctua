@@ -5,50 +5,231 @@ import { activityKinds, dateOffset } from '../data/initialActivities'
 import { useActivityEditor } from '../hooks/useActivityEditor'
 
 export function CalendarPage() {
-  const { activities, toggleActivity } = usePlatform()
+  const { activities, toggleActivity, authUser, catalog, schoolTimezone } =
+    usePlatform()
   const editor = useActivityEditor()
   const [filter, setFilter] = useState('Todas')
+  const [view, setView] = useState('day')
+  const [classFilter, setClassFilter] = useState('')
+  const [subjectFilter, setSubjectFilter] = useState('')
   const [month, setMonth] = useState(() => {
-    const today = new Date()
+    const today = new Date(`${dateOffset(0, schoolTimezone)}T12:00:00`)
     return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`
   })
-  const [selectedDate, setSelectedDate] = useState(dateOffset(1))
+  const [selectedDate, setSelectedDate] = useState(
+    dateOffset(1, schoolTimezone),
+  )
   const [yearText, monthText] = month.split('-')
   const year = Number(yearText)
   const monthIndex = Number(monthText) - 1
   const monthLength = new Date(year, monthIndex + 1, 0).getDate()
   const firstWeekday = new Date(year, monthIndex, 1).getDay()
-  const days = Array.from({ length: firstWeekday + monthLength }, (_, index) => index < firstWeekday ? null : index - firstWeekday + 1)
-  const monthLabel = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(new Date(year, monthIndex, 1))
-  const visible = activities.filter((activity) => filter === 'Todas' || activity.kind === filter)
-  const dayActivities = visible.filter((activity) => activity.dueDate === selectedDate && activity.status !== 'cancelled')
+  const days = Array.from({ length: firstWeekday + monthLength }, (_, index) =>
+    index < firstWeekday ? null : index - firstWeekday + 1,
+  )
+  const monthLabel = new Intl.DateTimeFormat('pt-BR', {
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(year, monthIndex, 1))
+  const visible = activities.filter(
+    (activity) =>
+      (filter === 'Todas' || activity.kind === filter) &&
+      (!classFilter || activity.classId === classFilter) &&
+      (!subjectFilter || activity.subjectId === subjectFilter),
+  )
+  const startWeek = new Date(`${selectedDate}T12:00:00`)
+  startWeek.setDate(startWeek.getDate() - startWeek.getDay())
+  const endWeek = new Date(startWeek)
+  endWeek.setDate(endWeek.getDate() + 7)
+  const dateKey = (date: Date) =>
+    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  const dayActivities = visible.filter(
+    (activity) =>
+      (view === 'month'
+        ? activity.dueDate.startsWith(month)
+        : view === 'week'
+          ? activity.dueDate >= dateKey(startWeek) &&
+            activity.dueDate < dateKey(endWeek)
+          : activity.dueDate === selectedDate) &&
+      activity.status !== 'cancelled',
+  )
 
   function shiftMonth(amount: number) {
     const nextMonth = new Date(year, monthIndex + amount, 1)
-    setMonth(`${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, '0')}`)
+    setMonth(
+      `${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, '0')}`,
+    )
   }
 
   return (
     <>
-      {editor.message && <div className="platform-success" role="status"><span>✓</span>{editor.message}<button type="button" onClick={editor.clearMessage} aria-label="Fechar aviso">×</button></div>}
+      {editor.message && (
+        <div className="platform-success" role="status">
+          <span>✓</span>
+          {editor.message}
+          <button
+            type="button"
+            onClick={editor.clearMessage}
+            aria-label="Fechar aviso"
+          >
+            ×
+          </button>
+        </div>
+      )}
       <section className="app-panel agenda-panel">
-        <div className="app-panel-heading"><div><span className="eyebrow">CALENDÁRIO ESCOLAR</span><h2>Organize seu mês</h2></div><div className="month-picker"><button type="button" aria-label="Mês anterior" onClick={() => shiftMonth(-1)}>‹</button><span>{monthLabel}</span><button type="button" aria-label="Próximo mês" onClick={() => shiftMonth(1)}>›</button></div></div>
-        <div className="calendar-weekdays">{['dom.', 'seg.', 'ter.', 'qua.', 'qui.', 'sex.', 'sáb.'].map((day) => <span key={day}>{day}</span>)}</div>
-        <div className="calendar-grid">{days.map((day, index) => {
-          const date = day ? `${yearText}-${monthText}-${String(day).padStart(2, '0')}` : `empty-${index}`
-          const hasActivity = day && activities.some((activity) => activity.dueDate === date && activity.status !== 'cancelled')
-          return <button key={date} type="button" disabled={!day} className={`${date === selectedDate ? 'day-selected' : ''}${hasActivity ? ' day-has-activity' : ''}`} onClick={() => day && setSelectedDate(date)}>{day}<i /></button>
-        })}</div>
-        <div className="agenda-day-heading">
-          <div><span className="eyebrow">SELEÇÃO</span><h3>{new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(`${selectedDate}T12:00:00`))}</h3></div>
-          <div className="agenda-day-tools">
-            <select className="activity-filter" aria-label="Filtrar por tipo" value={filter} onChange={(event) => setFilter(event.target.value)}><option>Todas</option>{activityKinds.map((kind) => <option key={kind}>{kind}</option>)}</select>
-            <button className="app-button" type="button" onClick={() => editor.openNew(selectedDate)}><span aria-hidden="true">+</span> Adicionar atividade</button>
+        <div className="app-panel-heading">
+          <div>
+            <span className="eyebrow">CALENDÁRIO ESCOLAR</span>
+            <h2>Organize seu mês</h2>
+          </div>
+          <div className="month-picker">
+            <button
+              type="button"
+              aria-label="Mês anterior"
+              onClick={() => shiftMonth(-1)}
+            >
+              ‹
+            </button>
+            <span>{monthLabel}</span>
+            <button
+              type="button"
+              aria-label="Próximo mês"
+              onClick={() => shiftMonth(1)}
+            >
+              ›
+            </button>
           </div>
         </div>
-        <ActivityList activities={dayActivities} onToggle={toggleActivity} onEdit={editor.openEdit} onCancel={editor.cancel} emptyMessage="Nenhuma atividade nesta data." />
+        <div className="agenda-filters">
+          <label>
+            Período
+            <select value={view} onChange={(e) => setView(e.target.value)}>
+              <option value="day">Dia</option>
+              <option value="week">Semana</option>
+              <option value="month">Mês</option>
+            </select>
+          </label>
+          <label>
+            Turma
+            <select
+              value={classFilter}
+              onChange={(e) => setClassFilter(e.target.value)}
+            >
+              <option value="">Todas</option>
+              {Array.from(
+                new Map(catalog.map((c) => [c.classId, c])).values(),
+              ).map((c) => (
+                <option value={c.classId} key={c.classId}>
+                  {c.className}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Disciplina
+            <select
+              value={subjectFilter}
+              onChange={(e) => setSubjectFilter(e.target.value)}
+            >
+              <option value="">Todas</option>
+              {Array.from(
+                new Map(
+                  catalog
+                    .filter((c) => !classFilter || c.classId === classFilter)
+                    .map((c) => [c.subjectId, c]),
+                ).values(),
+              ).map((c) => (
+                <option value={c.subjectId} key={c.subjectId}>
+                  {c.subjectName}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <p className="attachment-note">Horário escolar: {schoolTimezone}</p>
+        <div className="calendar-weekdays">
+          {['dom.', 'seg.', 'ter.', 'qua.', 'qui.', 'sex.', 'sáb.'].map(
+            (day) => (
+              <span key={day}>{day}</span>
+            ),
+          )}
+        </div>
+        <div className="calendar-grid">
+          {days.map((day, index) => {
+            const date = day
+              ? `${yearText}-${monthText}-${String(day).padStart(2, '0')}`
+              : `empty-${index}`
+            const hasActivity =
+              day &&
+              visible.some(
+                (activity) =>
+                  activity.dueDate === date && activity.status !== 'cancelled',
+              )
+            return (
+              <button
+                key={date}
+                type="button"
+                aria-label={
+                  day
+                    ? `${day} de ${monthLabel}${hasActivity ? ', com atividades' : ''}`
+                    : undefined
+                }
+                aria-pressed={date === selectedDate}
+                disabled={!day}
+                className={`${date === selectedDate ? 'day-selected' : ''}${hasActivity ? ' day-has-activity' : ''}`}
+                onClick={() => day && setSelectedDate(date)}
+              >
+                {day}
+                <i />
+              </button>
+            )
+          })}
+        </div>
+        <div className="agenda-day-heading">
+          <div>
+            <span className="eyebrow">SELEÇÃO</span>
+            <h3>
+              {view==='month' ? monthLabel : view==='week' ? `Semana de ${startWeek.toLocaleDateString('pt-BR')}` : new Intl.DateTimeFormat('pt-BR', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+              }).format(new Date(`${selectedDate}T12:00:00`))}
+            </h3>
+          </div>
+          <div className="agenda-day-tools">
+            <select
+              className="activity-filter"
+              aria-label="Filtrar por tipo"
+              value={filter}
+              onChange={(event) => setFilter(event.target.value)}
+            >
+              <option>Todas</option>
+              {activityKinds.map((kind) => (
+                <option key={kind}>{kind}</option>
+              ))}
+            </select>
+            {authUser?.role !== 'student' && (
+              <button
+                className="app-button"
+                type="button"
+                onClick={() => editor.openNew(selectedDate)}
+              >
+                <span aria-hidden="true">+</span> Adicionar atividade
+              </button>
+            )}
+          </div>
+        </div>
+        <ActivityList
+          activities={dayActivities}
+          onToggle={toggleActivity}
+          onEdit={editor.openEdit}
+          onCancel={editor.cancel}
+          emptyMessage="Nenhuma atividade neste período."
+          canManage={authUser?.role !== 'student'}
+          canToggle={authUser?.role === 'student'}
+        />
       </section>
-      {editor.form}
+      {authUser?.role !== 'student' && editor.form}
     </>
   )
 }

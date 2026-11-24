@@ -1,52 +1,48 @@
 # Noctua
 
-Agenda escolar web para centralizar atividades, provas, eventos e avisos de turmas do ensino técnico e médio. O escopo e as regras do produto estão em [docs/PROJETO_NOCTUA.md](docs/PROJETO_NOCTUA.md).
+Agenda escolar web para centralizar atividades, provas, eventos e avisos do ensino técnico e médio. O produto e suas regras estão em [docs/PROJETO_NOCTUA.md](docs/PROJETO_NOCTUA.md); os materiais complementares, em [docs/CONTEXTO_REFERENCIAS.md](docs/CONTEXTO_REFERENCIAS.md).
 
-## Tecnologias
+## Estado atual
 
-- **Web:** React, TypeScript, Vite e CSS.
-- **Tipografia:** Poppins como padrão e OpenDyslexic como opção de acessibilidade, carregadas localmente.
-- **Acessibilidade em Libras:** widget oficial do VLibras disponível na interface.
-- **API:** NestJS, TypeORM e PostgreSQL.
-- **Notificações:** base preparada para Web Push; requer consentimento no navegador e HTTPS (localhost funciona para desenvolvimento).
+- React, TypeScript e Vite no frontend; NestJS, TypeORM e PostgreSQL no backend.
+- Login por cookie HttpOnly, recuperação de senha, convites institucionais e autorização por papel e vínculo.
+- Atividades persistidas com rascunho, publicação, edição e cancelamento; agenda por dia, semana ou mês com filtros.
+- Checklist individual, avisos, materiais por links HTTPS, perfil e preferências persistidos.
+- Coordenação administra turmas, disciplinas, convites e vínculos de usuários existentes.
+- Temas claro, escuro e do sistema; alto contraste, OpenDyslexic e widget VLibras.
 
-## Requisitos
+O banco ativo é PostgreSQL **local**, com dados separados dos testes. O projeto Supabase dedicado recebeu o esquema inicial para uma conexão futura. Upload de arquivos e funcionamento offline são etapas futuras.
 
-- Node.js 22 ou superior
-- npm
-- PostgreSQL 14 ou superior
+Notificações Web Push podem ser ativadas por estudantes em Configurações. As preferências de 24 e 48 horas são individuais; o processador da API agenda lembretes de atividades publicadas e atualiza pendências após alterações, cancelamentos e mudanças de turma. O navegador precisa permitir notificações e funcionar em HTTPS ou localhost. A entrega depende do serviço do navegador e não é garantida.
 
-## Configuração local
+## Executar
 
-1. Crie um banco PostgreSQL novo, com o nome definido por `DB_NAME`.
-2. Copie `backend/.env.example` para `backend/.env` e configure host, credenciais, `JWT_SECRET` e fuso horário. Copie `frontend/.env.example` para `frontend/.env` se a API usar outro endereço. As chaves VAPID são necessárias quando o envio de Web Push for implementado.
-3. Aplique os arquivos de `backend/database/migrations/` em ordem numérica com `psql` e `ON_ERROR_STOP=1`.
-4. Em um terminal, instale e inicie a API:
+Requisitos: Node.js 22.18+ e PostgreSQL 14+. Nesta instalação, PostgreSQL 18 está disponível na porta local `55432`.
 
-   ```powershell
-   cd backend
-   npm ci
-   npm run start:dev
-   ```
+1. Inicie o cluster pela raiz: `backend/scripts/local-test-db.ps1`.
+2. No backend: `npm ci`, `npm run migrate`, `npm run start:dev`.
+3. No frontend: `npm ci`, `npm run dev`.
 
-5. Em outro terminal, instale e inicie a aplicação web:
+Abra `http://localhost:5173`. O acesso inicial da coordenação local está no arquivo ignorado `.local-test/primeiro-acesso.txt`. Em outra instalação, copie `backend/.env.example` para `.env`, configure a conexão, aplique `npm run migrate` e crie a primeira coordenação com `npm run bootstrap:coordinator`.
 
-   ```powershell
-   cd frontend
-   npm ci
-   npm run dev
-   ```
+A API fica em `http://localhost:3000/api`; o Vite encaminha `/api` para ela. Em produção, use `/api` no mesmo domínio ou configure `VITE_API_URL` e `FRONTEND_URL` para origens compatíveis com o cookie SameSite. Produção exige HTTPS e um `JWT_SECRET` forte. SMTP é configurado em `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD` e `MAIL_FROM`; sem SMTP em desenvolvimento, links são registrados somente no log da API.
 
-A API fica em `http://localhost:3000/api`; o frontend, em `http://localhost:5173`. Durante o desenvolvimento, o Vite encaminha `/api` para a API local. Em produção, o frontend usa `/api` no mesmo domínio por padrão; se a API estiver em outro domínio, defina `VITE_API_URL` com a URL pública completa da API e configure `FRONTEND_URL` no backend com a origem do frontend.
+Para Web Push, defina uma única vez `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` e `VAPID_SUBJECT` no ambiente da API. Gere o par com `npx web-push generate-vapid-keys` dentro de `backend`; mantenha a chave privada fora do Git e use em produção um contato válido em `VAPID_SUBJECT`. As chaves locais já estão em `backend/.env`. Deixe `PUSH_WORKER_ENABLED=true` em pelo menos uma instância ativa; ele consulta pendências a cada 30 segundos. Alterar as chaves exige que os dispositivos reativem suas inscrições. Envio por e-mail continua indisponível.
 
-## Estrutura
+## Proteção de contas
 
-- `frontend/src/pages/`: páginas da landing, agenda, checklist, avisos, perfil e configurações.
-- `frontend/src/components/`: componentes reutilizáveis de navegação, atividades, formulários e ícones.
-- `frontend/src/context/` e `frontend/src/data/`: estado demonstrativo e conteúdo local do frontend.
-- `frontend/src/`: rotas, estilos e inicialização da aplicação.
-- `backend/src/`: API NestJS; atualmente inclui configuração do PostgreSQL e `GET /api/health`.
-- `backend/database/migrations/`: esquema inicial de turmas, disciplinas, atividades, checklist e notificações.
-- `docs/PROJETO_NOCTUA.md`: produto, perfis, jornada, acessibilidade e contratos HTTP propostos.
+Execute `npm run migrate` antes de iniciar a nova versão: a migration 011 cria sessões revogáveis e contadores compartilhados. Sessões anteriores deixam de ser válidas e todos precisam entrar novamente. O logout encerra apenas a sessão atual; uma redefinição de senha encerra todas as sessões da conta. `JWT_EXPIRES_IN` aceita um número inteiro seguido de `s`, `m`, `h` ou `d` e controla a validade do JWT, cookie e registro da sessão.
 
-A interface web inclui landing page, rotas de acesso demonstrativas, agenda, checklist, avisos, perfil com progresso acadêmico e configurações em uma navegação compartilhada. As ações de conta são apenas visuais até a integração com a API. Todos os dados permanecem em memória no navegador; autenticação, autorização, publicação, upload de arquivos, persistência e notificações ainda precisam ser conectados à API. Os formulários e serviços visuais estão separados em páginas, componentes, contexto e dados para apoiar essa integração. As migrations devem ser usadas somente como sequência inicial em um banco novo; consulte o aviso de transição na documentação se você já aplicou o esquema anterior de cursos e aulas.
+Por padrão, o login permite 5 tentativas por IP e e-mail e 100 por IP em 15 minutos. A recuperação permite 3 solicitações por IP e e-mail e 30 por IP em uma hora; solicitações adicionais mantêm a resposta genérica e não enviam mensagem. Os limites e janelas podem ser ajustados pelas variáveis `AUTH_LOGIN_*` e `AUTH_RESET_*` de `.env.example`. Acompanhe bloqueios em redes compartilhadas. Identificadores dos contadores são protegidos por HMAC usando `JWT_SECRET`, e dados expirados são removidos periodicamente.
+
+Por padrão, cabeçalhos de encaminhamento são ignorados. Atrás de proxy, configure `TRUSTED_PROXY_CIDRS` com uma lista separada por vírgulas contendo somente endereços ou redes dos proxies sob seu controle; não confie em redes de clientes. O proxy confiável deve substituir os cabeçalhos de encaminhamento recebidos externamente. O banco deve estar disponível para autenticar, aplicar os limites e revogar sessões.
+
+## Verificação
+
+Em cada pacote, execute `npm run build` e `npm test`. Após compilar o backend, rode `backend/scripts/run-local-test.ps1 integration` para testes com PostgreSQL real. A suíte usa a base isolada `postgres` no cluster de testes; a base ativa `noctua` fica separada.
+
+Instruções de conexão, migrations, fixtures de auditoria e preparação do Supabase estão em [docs/BANCO_E_EXECUCAO.md](docs/BANCO_E_EXECUCAO.md).
+
+## GitHub
+
+O remoto `origin` está conectado a [Josue-Neto/Noctua](https://github.com/Josue-Neto/Noctua). A conta conectada tem leitura e aguarda acesso de escrita para enviar alterações e associar o repositório ao Supabase. Configurações `.env`, senhas e dados locais são ignorados pelo Git.

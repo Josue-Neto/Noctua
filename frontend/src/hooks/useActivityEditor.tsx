@@ -1,7 +1,12 @@
 import { useState } from 'react'
 import { ActivityForm } from '../components/ActivityForm'
+import { ConfirmationDialog } from '../components/ConfirmationDialog'
 import { usePlatform } from '../context/PlatformContext'
-import type { Activity, ActivityStatus, ActivityValues } from '../types/platform'
+import type {
+  Activity,
+  ActivityStatus,
+  ActivityValues,
+} from '../types/platform'
 
 export function useActivityEditor() {
   const { saveActivity, cancelActivity } = usePlatform()
@@ -9,6 +14,7 @@ export function useActivityEditor() {
   const [initialDate, setInitialDate] = useState<string | undefined>()
   const [formOpen, setFormOpen] = useState(false)
   const [message, setMessage] = useState('')
+  const [cancelling, setCancelling] = useState<Activity | null>(null)
 
   function openNew(date?: string) {
     setEditing(null)
@@ -22,22 +28,48 @@ export function useActivityEditor() {
     setFormOpen(true)
   }
 
-  function save(values: ActivityValues, status: ActivityStatus) {
-    saveActivity(values, status, editing?.id)
-    setMessage(status === 'draft' ? 'Rascunho salvo.' : editing ? 'Atividade atualizada.' : 'Atividade adicionada.')
+  async function save(values: ActivityValues, status: ActivityStatus) {
+    await saveActivity(values, status, editing?.id)
+    setMessage(
+      status === 'draft'
+        ? 'Rascunho salvo.'
+        : editing
+          ? 'Atividade atualizada.'
+          : 'Atividade adicionada.',
+    )
     setEditing(null)
     setFormOpen(false)
   }
 
   function cancel(activity: Activity) {
-    if (!window.confirm(`Cancelar "${activity.title}"?`)) return
-    cancelActivity(activity.id)
-    setMessage('Atividade cancelada.')
+    setCancelling(activity)
   }
 
-  const form = formOpen
-    ? <ActivityForm activity={editing} initialDate={initialDate} onSave={save} onClose={() => setFormOpen(false)} />
-    : null
+  const activityForm = formOpen ? (
+    <ActivityForm
+      activity={editing}
+      initialDate={initialDate}
+      onSave={save}
+      onClose={() => setFormOpen(false)}
+    />
+  ) : null
+  const form = (
+    <>
+      {activityForm}
+      {cancelling && (
+        <ConfirmationDialog
+          title="Cancelar atividade?"
+          message={`O prazo de “${cancelling.title}” será cancelado para a turma.`}
+          onCancel={() => setCancelling(null)}
+          onConfirm={async () => {
+            await cancelActivity(cancelling.id)
+            setCancelling(null)
+            setMessage('Atividade cancelada.')
+          }}
+        />
+      )}
+    </>
+  )
 
   return {
     openNew,

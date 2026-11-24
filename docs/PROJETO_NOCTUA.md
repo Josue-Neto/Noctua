@@ -48,7 +48,7 @@ Este projeto será uma aplicação **web responsiva**, feita com React, TypeScri
 - **Professor/coordenação:** visão geral da turma → atividades → criar/editar atividade → selecionar turma e disciplina → anexar material → publicar.
 - Em telas largas, usar navegação lateral e conteúdo em colunas. Em telas estreitas, adaptar para navegação compacta e conteúdo em coluna única, sem esconder informações essenciais nem exigir rolagem horizontal.
 
-A interface web atual reúne landing page, acesso demonstrativo, visão geral, agenda, checklist, avisos, perfil editável e configurações. A navegação é compartilhada entre os perfis; ações administrativas demonstrativas ficam disponíveis na mesma experiência e devem ser autorizadas pela API na integração. Formulários e dados permanecem exclusivamente no navegador: as telas de entrada não autenticam usuários, alterações não são persistidas no servidor e anexos não são enviados. A integração com autenticação, autorização por turma, publicação, armazenamento de arquivos, sincronização e notificações permanece a cargo da API.
+A interface web atual reúne landing page, acesso demonstrativo, visão geral, agenda, checklist, avisos, perfil editável e configurações. A navegação é compartilhada entre os perfis; ações administrativas demonstrativas ficam disponíveis na mesma experiência e devem ser autorizadas pela API na integração. Os formulários usam a API NestJS para autenticação, convites, perfis, preferências, atividades e checklist, com persistência PostgreSQL e autorização por turma. Materiais e foto de perfil usam links HTTPS. Uploads, sincronização offline e envio automático de notificações ficam para etapas posteriores.
 
 ## Identidade visual e acessibilidade
 
@@ -87,16 +87,21 @@ Diretrizes para implementação:
 - Acompanhar a preferência de tema do sistema por padrão, permitindo alternância manual entre claro e escuro na landing page e nas configurações. Usar tons de azul e violeta no modo escuro; alto contraste deve manter foco visível.
 - Respeitar a preferência do sistema por movimento reduzido e evitar navegação excessivamente profunda.
 
-## Contratos HTTP propostos
+## Contratos HTTP
 
-As rotas abaixo são propostas e ainda não implementadas. Todas ficam sob `/api`; atualmente somente `GET /api/health` está disponível.
+As rotas ficam sob `/api`. Health check, autenticação, convites, agenda, checklist, perfil, preferências e gestão institucional estão implementados. Consulte também `BANCO_E_EXECUCAO.md`.
 
 ### Conta e contexto
 
-- `POST /auth/login` — autentica com e-mail e senha; retorna token e perfil público.
-- `GET /auth/me` — retorna o usuário e os perfis/turmas aos quais tem acesso.
+- `POST /auth/login` — autentica com e-mail e senha e abre sessão em cookie `HttpOnly`.
+- `POST /auth/logout` — encerra a sessão do navegador.
+- `GET /auth/me` — retorna usuário, papel principal e turmas/disciplinas associadas.
+- `POST /auth/password-reset/request` e `POST /auth/password-reset/confirm` — solicitam e confirmam redefinição com link de uso único.
+- `GET /auth/invitations/:token` e `POST /auth/invitations/accept` — consultam e aceitam convites temporários.
+- `GET /staff/catalog`, `POST /staff/catalog/classes`, `POST /staff/catalog/classes/:classId/subjects` — coordenação prepara turmas e disciplinas.
+- `GET /staff/invitations`, `POST /staff/invitations` e `POST /staff/invitations/:id/revoke` — coordenação administra convites e vínculos.
 
-A criação de contas e a concessão de papéis devem ocorrer por um fluxo controlado pela instituição; não permitir que alguém escolha `teacher` ou `coordinator` no cadastro público.
+A criação de contas e a concessão de papéis ocorrem por convites administrados pela coordenação; não permitir que alguém escolha `teacher` ou `coordinator` no cadastro público.
 
 ### Agenda do estudante
 
@@ -128,6 +133,6 @@ As migrations PostgreSQL definem:
 - `student_activity_checklist`: conclusão privada por estudante e atividade.
 - `notification_preferences`, `push_subscriptions` e `notification_deliveries`: preferências, inscrições e estado de cada lembrete.
 
-As migrations na pasta `backend/database/migrations/` são a estrutura inicial do projeto e precisam ser aplicadas na ordem numérica em um banco novo. Elas ainda não incluem um runner de migrations nem foram aplicadas neste ambiente.
+As migrations na pasta `backend/database/migrations/` são a estrutura inicial do projeto e precisam ser aplicadas na ordem numérica em um banco novo. Há um executor com histórico e checksum; as migrations foram aplicadas na base local e no projeto Supabase preparado para conexão futura.
 
 **Se você já aplicou as migrations anteriores de cursos/aulas deste scaffold, não execute esta nova sequência por cima do mesmo banco.** O esquema foi corrigido para o produto real antes do início do uso; uma base antiga precisa de uma migration de transição específica e backup, não de reaplicação das migrations iniciais.
