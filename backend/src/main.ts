@@ -26,7 +26,7 @@ async function bootstrap() {
   );
   app.setGlobalPrefix('api');
   app.enableCors({
-    origin: new URL(process.env.FRONTEND_URL ?? 'http://localhost:5173').origin,
+    origin: new URL(process.env.FRONTEND_URL ?? process.env.RENDER_EXTERNAL_URL ?? 'http://localhost:5173').origin,
     credentials: true,
     allowedHeaders: ['Content-Type', 'X-Noctua-Request'],
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],

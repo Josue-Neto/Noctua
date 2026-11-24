@@ -15,7 +15,7 @@ export class CsrfGuard implements CanActivate {
     const origin = request.headers.origin;
 
     const expectedOrigin = new URL(
-      process.env.FRONTEND_URL ?? 'http://localhost:5173',
+      process.env.FRONTEND_URL ?? process.env.RENDER_EXTERNAL_URL ?? 'http://localhost:5173',
     ).origin;
     if (
       (origin && origin !== expectedOrigin) ||

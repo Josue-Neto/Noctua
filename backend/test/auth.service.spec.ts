@@ -121,6 +121,21 @@ test('CSRF guard accepts the configured browser origin only with the custom requ
   }
 });
 
+test('CSRF guard accepts the Render origin when no frontend URL is configured', () => {
+  const oldFrontend = process.env.FRONTEND_URL;
+  const oldRender = process.env.RENDER_EXTERNAL_URL;
+  delete process.env.FRONTEND_URL;
+  process.env.RENDER_EXTERNAL_URL = 'https://noctua-test.onrender.com';
+  try {
+    const guard = new CsrfGuard();
+    const context = { switchToHttp: () => ({ getRequest: () => ({ method: 'POST', headers: { origin: 'https://noctua-test.onrender.com', 'x-noctua-request': '1' } }) }) };
+    assert.equal(guard.canActivate(context as never), true);
+  } finally {
+    if (oldFrontend === undefined) delete process.env.FRONTEND_URL; else process.env.FRONTEND_URL = oldFrontend;
+    if (oldRender === undefined) delete process.env.RENDER_EXTERNAL_URL; else process.env.RENDER_EXTERNAL_URL = oldRender;
+  }
+});
+
 test('password reset uses the same public response regardless of whether the email exists', async () => {
   const service = {
     requestPasswordReset: async (email: string) => {

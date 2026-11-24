@@ -528,7 +528,7 @@ export class AuthService {
 
   private frontendUrl() {
     return (
-      this.config.get<string>('FRONTEND_URL') ?? 'http://localhost:5173'
+      this.config.get<string>('FRONTEND_URL') ?? this.config.get<string>('RENDER_EXTERNAL_URL') ?? 'http://localhost:5173'
     ).replace(/\/$/, '');
   }
 }
