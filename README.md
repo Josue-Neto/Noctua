@@ -27,6 +27,8 @@ Abra `http://localhost:5173`. O acesso inicial da coordenação local está no a
 
 A API fica em `http://localhost:3000/api`; o Vite encaminha `/api` para ela. Em produção, use `/api` no mesmo domínio ou configure `VITE_API_URL` e `FRONTEND_URL` para origens compatíveis com o cookie SameSite. Produção exige HTTPS e um `JWT_SECRET` forte. SMTP é configurado em `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD` e `MAIL_FROM`; sem SMTP em desenvolvimento, links são registrados somente no log da API.
 
+Para uma instalação de testes no Render com o Supabase, use a conexão **Session pooler** e configure `DB_SSL_CA_FILE=./certs/supabase-root-2021.crt` no backend. O certificado público incluído é o Supabase Root 2021 CA; sua impressão digital SHA-256 é `807025ad50d4ed219d2c9c7d299c004f824eb00cf7f65afef607d07b72e6cafa`. Senhas e a URL de conexão devem permanecer nas variáveis privadas do serviço. Com `SERVE_FRONTEND=true`, a API também serve o frontend compilado no mesmo endereço.
+
 Para Web Push, defina uma única vez `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` e `VAPID_SUBJECT` no ambiente da API. Gere o par com `npx web-push generate-vapid-keys` dentro de `backend`; mantenha a chave privada fora do Git e use em produção um contato válido em `VAPID_SUBJECT`. As chaves locais já estão em `backend/.env`. Deixe `PUSH_WORKER_ENABLED=true` em pelo menos uma instância ativa; ele consulta pendências a cada 30 segundos. Alterar as chaves exige que os dispositivos reativem suas inscrições. Envio por e-mail continua indisponível.
 
 ## Proteção de contas
