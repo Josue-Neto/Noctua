@@ -7,7 +7,8 @@ import { databaseConfig } from './database.mjs'
 export async function migrate(client) {
   await client.query("SELECT pg_advisory_lock(hashtext('noctua-migrations'))")
   try {
-    await client.query('CREATE SCHEMA IF NOT EXISTS noctua')
+    const schema = await client.query("SELECT 1 FROM pg_namespace WHERE nspname = 'noctua'")
+    if (!schema.rowCount) await client.query('CREATE SCHEMA IF NOT EXISTS noctua')
     await client.query('SET search_path TO noctua, pg_catalog')
     await client.query(
       'CREATE TABLE IF NOT EXISTS schema_migrations (name TEXT PRIMARY KEY, checksum TEXT NOT NULL, applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW())',
