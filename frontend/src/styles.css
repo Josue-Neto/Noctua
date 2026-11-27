@@ -2650,19 +2650,46 @@ button:disabled { opacity:.65; cursor:wait; }
 }
 
 .platform.high-contrast {
-  --platform-bg: #FFFFFF;
-  --platform-surface: #FFFFFF;
-  --platform-ink: #4B4C7E;
-  --platform-muted: #4B4C7E;
-  --platform-border: #46479C;
-  --platform-selected: #CDCEFF;
-  --primary: #46479C;
-  --primary-light: #46479C;
-  --warm: #FFD38F;
-  --warm-ink: #46479C;
+  --platform-bg: #F8F5EB;
+  --platform-surface: #FFFEF5;
+  --platform-ink: #102749;
+  --platform-muted: #344B68;
+  --platform-border: #7189A8;
+  --platform-selected: #E4ECF6;
+  --primary: #2455A4;
+  --primary-light: #2455A4;
+  --warm: #F4D77B;
+  --warm-ink: #102749;
   --button-ink: #FFFFFF;
-  --surface-soft: #CDCEFF;
-  --surface-ink: #4B4C7E;
+  --surface-soft: #E4ECF6;
+  --surface-ink: #102749;
+}
+
+.platform.high-contrast .platform-sidebar,
+.platform.high-contrast .platform-topbar {
+  background: #102749;
+  color: #FFFEF5;
+}
+
+.platform.high-contrast .platform-brand,
+.platform.high-contrast .workspace-label,
+.platform.high-contrast .platform-nav a,
+.platform.high-contrast .profile-block,
+.platform.high-contrast .breadcrumb,
+.platform.high-contrast .platform-topbar h1,
+.platform.high-contrast .topbar-notice {
+  color: #FFFEF5;
+}
+
+.platform.high-contrast .platform-nav a.selected,
+.platform.high-contrast .platform-nav a:hover {
+  background: #F4D77B;
+  color: #102749;
+}
+
+.platform.high-contrast :focus-visible {
+  outline: 3px solid #B77C00;
+  outline-offset: 3px;
 }
 
 .platform.dyslexia-font,

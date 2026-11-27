@@ -45,7 +45,7 @@ export function PlatformLayout() {
 
   return (
     <div
-      className={`platform${preferences.highContrast ? ' high-contrast' : ''}${preferences.darkMode ? ' dark-mode' : ''}${preferences.dyslexiaFont ? ' dyslexia-font' : ''}`}
+      className={`platform${preferences.highContrast ? ' high-contrast' : ''}${preferences.darkMode && !preferences.highContrast ? ' dark-mode' : ''}${preferences.dyslexiaFont ? ' dyslexia-font' : ''}`}
     >
       <aside className="platform-sidebar">
         <NavLink className="platform-brand" to="/inicio">
